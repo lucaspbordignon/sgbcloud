@@ -7,8 +7,8 @@ class AudioRecognizer():
     def __init__(self):
         self.recognizer = sr.Recognizer()
 
-    def recognize(source='microphone'):
-        sourceFunction = sr.Microphone if source == 'microphone' else sr.AudioFile
+    def recognize(self, source='microphone'):
+        sourceFunction = sr.Microphone
 
         while True:
             with sourceFunction() as source:
@@ -25,3 +25,7 @@ class AudioRecognizer():
                 print("Google could not understand audio")
             except sr.RequestError as e:
                 print("Google error; {0}".format(e))
+
+if __name__ == '__main__':
+    recognize = AudioRecognizer()
+    recognize.recognize()
