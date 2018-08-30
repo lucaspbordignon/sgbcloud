@@ -1,5 +1,4 @@
  #!/usr/bin/env python3 
-# -*- coding: utf-8 -*-
 
 from __future__ import print_function
 import httplib2
@@ -16,12 +15,13 @@ try:
 except ImportError:
     flags = None
 
+ # Available at:
+ # https://console.developers.google.com/apis/credentials?project=gestaodeleadsteste&hl=pt-br
+APPLICATION_NAME = 'sgb-cloud-teste' 
+CLIENT_SECRET_FILE = 'client_secret.json'
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets' 
 
-CLIENT_SECRET_FILE = 'client_secret.json' # Available at: https://console.developers.google.com/apis/credentials?project=gestaodeleadsteste&hl=pt-br
-APPLICATION_NAME = 'sgb-cloud-teste' 
-
-def get_credentials(): # Função importada do site do google sheets API
+def get_credentials():
     """Gets valid user credentials from storage.
     
     If nothing has been stored, or if the stored credentials are invalid,
@@ -35,7 +35,7 @@ def get_credentials(): # Função importada do site do google sheets API
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(credential_dir,
-                                    'sheets.googleapis.com-python-quickstart.json')
+                                   'sheets.googleapis.com-python-quickstart.json')
 
     store = Storage(credential_path)
     credentials = store.get()
@@ -66,8 +66,10 @@ def update_spreadsheet( rows, headers,
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
                     'version=v4')
-    service = discovery.build('sheets', 'v4', http=http,
-                                discoveryServiceUrl=discoveryUrl)
+    service = discovery.build('sheets',
+                              'v4',
+                              http=http,
+                              discoveryServiceUrl=discoveryUrl)
     
     global link 
 
@@ -83,9 +85,7 @@ def update_spreadsheet( rows, headers,
     last_row = len(current_values)
 
     if last_row == 0:
-        body = {
-            'values': headers 
-            }
+        body = { 'values': headers }
 
         rangeName = sheet + '!A1:C1'
 
@@ -97,25 +97,8 @@ def update_spreadsheet( rows, headers,
 
     rangeName = sheet + '!A' + str(last_row+1) + ':C'
 
-    body = {
-            'values': rows 
-            }
-        
-    
-
+    body = { 'values': rows }
     
     result = service.spreadsheets().values().update(
             spreadsheetId=spreadsheetId, range=rangeName,
             valueInputOption='USER_ENTERED', body=body).execute()
-
-if __name__ == '__main__':
-    update_spreadsheet( [['Teste','Teste','Teste']],
-                        headers = [['palavras','bloco','palestrante']],
-                        spreadsheetId='12nX-xkjk5YiZvNhf0SXHDusefO942CRpxlgkDJeD5qg',
-                        sheet='Tabela1'
-                        )
-
-    print('\n\nGoogle Spreadsheet updated: \n'+ link + '\n')
-    
-    
-
