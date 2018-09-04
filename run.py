@@ -37,14 +37,15 @@ def menu():
 
 if __name__ == '__main__':
     settings = menu()
-
+    filename = "speech_{}".format(settings['block'].replace(' ','_'))
+    
     # Starts the recognizer synchronously
-    recognizer = Recognizer(language_code=settings['language'])
+    recognizer = Recognizer(language_code=settings['language'],filename=filename)
     recognizer.recognize()
 
     # Starts the processor
     processor = NaturalLanguageProcessor()
-    with open('speech.txt', 'r') as file:
+    with open(filename, 'r') as file:
         processor.generate_and_upload_words(file.read(),
                                             settings['speaker'],
                                             settings['block'])
