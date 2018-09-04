@@ -86,9 +86,10 @@ class MicrophoneStream(object):
 
 
 class Recognizer(object):
-    def __init__(self, language_code='pt-BR'):
+    def __init__(self, language_code='pt-BR',filename='speech.txt'):
         self._language_code = language_code
         self._client = speech.SpeechClient()
+        self._filename = filename
         self._config = types.RecognitionConfig(
                         encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
                         sample_rate_hertz=RATE,
@@ -142,7 +143,7 @@ class Recognizer(object):
                     # phrases
                     backup = [transcript + overwrite_chars]
 
-                    with open('speech.txt', 'a') as file:
+                    with open(self._filename, 'a') as file:
                         file.writelines([transcript + overwrite_chars])
 
                     # Exit recognition if we say batman
@@ -154,7 +155,7 @@ class Recognizer(object):
             except:
                 # If we exceed the time limit for the API request, save the
                 # context and raise the error
-                with open('speech.txt', 'a') as file:
+                with open(self._filename, 'a') as file:
                     file.writelines(backup)
 
                 raise

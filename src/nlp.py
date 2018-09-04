@@ -20,7 +20,6 @@ APPLICATION_NAME = 'sgb-cloud-teste'
 CLIENT_SECRET_FILE = 'client_secret.json'
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 
-
 class NaturalLanguageProcessor:
     def most_common_words(self,
                           corpus,
@@ -47,9 +46,9 @@ class NaturalLanguageProcessor:
 
         tokens = [w for w in word_tokenize(corpus.lower()) if w.isalpha()]
 
-        stopWords_nltk = set(stopwords.words('portuguese'))
+        stopWords_nltk = set(stopwords.words('portuguese')).union(set(stopwords.words('english')))
 
-        chumbadas = set(["apenas","outro","pode","trás","lado","frente"])
+        chumbadas = set(["apenas","outro","pode","trás","lado","frente","batman","então","gente"])
 
         stopWords = stopWords_nltk.union(set(add_stop_words)).union(chumbadas)
 
@@ -70,12 +69,12 @@ class NaturalLanguageProcessor:
 
 
     def generate_and_upload_words(self, text, speaker, block):
-        rows = self.most_common_words(text, speaker, block)
+        rows = self.most_common_words(text, palestrante=speaker, bloco=block)
 
         update_spreadsheet(rows,
-                           headers = [['palavra', 'palestrante', 'block']],
+                           headers = [['palavra', 'bloco', 'palestrante']],
                            spreadsheetId='12nX-xkjk5YiZvNhf0SXHDusefO942CRpxlgkDJeD5qg',
-                           sheet='common_words')
+                           sheet='Tabela1')
 
         print('##################################################')
         print('Google Spreadsheet updated! URL: {}'.format(link))
@@ -162,3 +161,46 @@ def update_spreadsheet( rows, headers,
     result = service.spreadsheets().values().update(
             spreadsheetId=spreadsheetId, range=rangeName,
             valueInputOption='USER_ENTERED', body=body).execute()
+
+if __name__ == '__main__':
+    def menu():
+        answers = {
+            'language': '',
+            'speaker': '',
+            'block': ''
+        }
+
+        print('Bem-vindo ao SGBCloud!')
+        print('Para sair, diga "batman".\n')
+
+        while True:
+            print('Selecione a linguagem a ser utilizada:')
+            print('[0] Português (pt-BR)')
+            print('[1] Inglês (en-US)')
+            selected = input()
+            if selected == '0':
+                answers['language'] = 'pt-BR'
+                break
+            elif selected == '1':
+                answers['language'] = 'en-US'
+                break
+
+        print('##################################################')
+        print('Digite o nome do palestrante:')
+        answers['speaker'] = input()
+
+        print('##################################################')
+        print('Digite o nome do bloco:')
+        answers['block'] = input()
+
+        return answers
+
+    settings = menu()
+    filename = "speech_{}".format(settings['block'].replace(' ','_'))
+    
+    # Starts the processor
+    processor = NaturalLanguageProcessor()
+    with open('../' + filename, 'r') as file:
+        processor.generate_and_upload_words(file.read(),
+                                            settings['speaker'],
+                                            settings['block'])
